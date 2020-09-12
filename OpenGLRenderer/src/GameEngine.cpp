@@ -138,6 +138,8 @@ int main(void)
 
     glfwMakeContextCurrent(window);
 
+    glfwSwapInterval(1);
+
     if (glewInit() != GLEW_OK)
         cout << "Glew initialization error" << endl;
 
@@ -166,7 +168,6 @@ int main(void)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	
 
 
     //buffer
@@ -190,7 +191,16 @@ int main(void)
 
     ShaderProgramSource source = ParseShader("res/shaders/Basic.shader");
 	const unsigned int shader = CreateShader(source.vertexSource, source.fragmentSource);
-    glUseProgram(shader);
+    GLCall(glUseProgram(shader));
+
+    GLCall(int location = glGetUniformLocation(shader, "u_Color"));
+    ASSERT(location != -1);
+
+    float r = 0.0f;
+
+
+    float increment = 0.05f;
+
     
 	
     while (!glfwWindowShouldClose(window))
@@ -198,7 +208,16 @@ int main(void)
        
         glClear(GL_COLOR_BUFFER_BIT);
 
+        if (r > 1.0f)
+            increment = -0.05f;
+        else if (r < 0.0f)
+            increment = 0.05f;
 
+        r += increment;
+
+
+
+        GLCall(glUniform4f(location, r, 0.3f, 0.8f, 1.0f));
         GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
 
 
