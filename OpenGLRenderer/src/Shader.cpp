@@ -7,6 +7,8 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <windows.h>
+
 
 #include "Renderer.h"
 
@@ -60,8 +62,12 @@ ShaderProgramSource Shader::ParseShader(std::string filepath)
 {
     const unsigned int program = glCreateProgram();
 
+	std::cout << "[0/2] Compiling shaders..." "\t\r" << std::flush;;
     const unsigned int vs = CompileShader(GL_VERTEX_SHADER, vertexShader);
+	std::cout << "[1/2] Compiling shaders..." << "\t\r" << std::flush;
     const unsigned int fs = CompileShader(GL_FRAGMENT_SHADER, fragmentShader);
+	std::cout << "[2/2] successfully compiled shader" << std::endl;
+
 
     glAttachShader(program, vs);
     glAttachShader(program, fs);
@@ -99,7 +105,6 @@ ShaderProgramSource Shader::ParseShader(std::string filepath)
 		return 0;
 
 	}
-
 	return id;
 }
 

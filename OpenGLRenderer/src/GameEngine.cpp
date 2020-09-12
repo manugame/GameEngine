@@ -2,12 +2,7 @@
 #include <GLFW/glfw3.h>
 
 
-#include <fstream>
 #include <iostream>
-#include <string>
-#include <fstream>
-#include <string>
-#include <sstream>
 
 #include "Renderer.h"
 #include "VertexBuffer.h"
@@ -24,11 +19,9 @@ int main(void)
         return -1;
 
 
-
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
-
 
 
     GLFWwindow* window = glfwCreateWindow(480, 480, "GameEngine v0.1", nullptr, nullptr);
@@ -40,7 +33,6 @@ int main(void)
         return -1;
     }
 
-	
 
     glfwMakeContextCurrent(window);
 
@@ -69,13 +61,9 @@ int main(void)
         };
 
 
-
-
         //enable alpha
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-
 
         VertexArray vertexArray;
         VertexBuffer vertexBuffer(positions, 4 * 2 * sizeof(float));
@@ -86,10 +74,7 @@ int main(void)
         vertexArray.AddBuffer(vertexBuffer, layout);
         vertexArray.Bind();
 
-
-
         IndexBuffer indexBuffer(indices, 6);
-
 
         Shader shader("res/shaders/basic.shader");
         shader.Bind();
@@ -117,7 +102,6 @@ int main(void)
             shader.Bind();
             shader.SetUniform4f("u_Color", r, 0.3f, 0.8f, 1.0f);
 
-        	
             indexBuffer.Bind();
             vertexArray.Bind();
 
@@ -125,8 +109,6 @@ int main(void)
 
 
             glfwSwapBuffers(window);
-
-
             glfwPollEvents();
 
 
@@ -137,8 +119,6 @@ int main(void)
 
             r += increment;
         }
-
-       
     }
 	
     glfwTerminate();
