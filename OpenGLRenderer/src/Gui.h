@@ -8,7 +8,7 @@ class Gui
 {
 public:
 	~Gui();
-	void Setup(GLFWwindow* window);
-	void NewFrame();
-	void Render();
+	static void Setup(GLFWwindow* window);
+	static void NewFrame();
+	static void Render();
 };

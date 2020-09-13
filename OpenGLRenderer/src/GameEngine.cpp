@@ -103,9 +103,8 @@ int main(void)
 
         Renderer renderer;
 		
-        Gui gui;
 
-        gui.Setup(window);
+        Gui::Setup(window);
 
 
 
@@ -118,7 +117,7 @@ int main(void)
 
             renderer.Clear();
 
-            gui.NewFrame();
+            Gui::NewFrame();
 
             glm::mat4 model = glm::translate(glm::mat4(1.0f), translation);
 
@@ -143,7 +142,7 @@ int main(void)
                 ImGui::End();
             }
 
-            gui.Render();
+            Gui::Render();
         	
             glfwSwapBuffers(window);
             glfwPollEvents();
