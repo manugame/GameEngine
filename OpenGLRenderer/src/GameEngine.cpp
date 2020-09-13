@@ -1,7 +1,6 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-
 #include <iostream>
 
 #include "Renderer.h"
@@ -9,6 +8,11 @@
 #include "IndexBuffer.h"
 #include "VertexArray.h"
 #include "Shader.h"
+#include "VertexBufferLayout.h"
+#include "Texture.h"
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 using namespace std;
 
@@ -24,7 +28,7 @@ int main(void)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
 
 
-    GLFWwindow* window = glfwCreateWindow(480, 480, "GameEngine v0.1", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(960, 540, "GameEngine v0.1", nullptr, nullptr);
 
 	
     if (!window)
@@ -39,19 +43,19 @@ int main(void)
     glfwSwapInterval(1);
 
     if (glewInit() != GLEW_OK)
-        cout << "Glew initialization error" << std::endl;
+        cout << "Glew initialization error" << endl;
 
     cout << "Runtime informations" << endl;
-    cout << glGetString(GL_VERSION) << std::endl;
+    cout << glGetString(GL_VERSION) << endl;
 	
     {
 
         float positions[] = {
 
-            -0.5f, -0.5, //0
-             0.5f, -0.5f,//1
-             0.5f,  0.5f,//2
-            -0.5f,  0.5f,//3
+             100.0f,  100.0f, 0.0f, 0.0f,//0
+             200.5f,  100.0f, 1.0f, 0.0f,//1
+             200.0f,  200.0f, 1.0f, 1.0f,//2
+             100.0f,  200.0f, 0.0f, 1.0f,//3
         };
 
         unsigned int indices[] = {
@@ -63,12 +67,15 @@ int main(void)
 
         //enable alpha
         glEnable(GL_BLEND);
+        glEnable(GL_TEXTURE_2D);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	
 
         VertexArray vertexArray;
-        VertexBuffer vertexBuffer(positions, 4 * 2 * sizeof(float));
+        VertexBuffer vertexBuffer(positions, 4 * 4 * sizeof(float));
 		
         VertexBufferLayout layout;
+        layout.Push<float>(2);
         layout.Push<float>(2);
 
         vertexArray.AddBuffer(vertexBuffer, layout);
@@ -76,48 +83,43 @@ int main(void)
 
         IndexBuffer indexBuffer(indices, 6);
 
+        glm::mat4 proj = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
+		glm::vec4 vp(100.0f, 100.0f, 0.0f, 1.0f);
+
+        glm::vec4 result = proj * vp;
+		
+
+
+
         Shader shader("res/shaders/basic.shader");
         shader.Bind();
 		
-        shader.SetUniform4f("u_Color", 0.8f, 0.3f, 0.8f, 1.0f);
+		shader.SetUniform4f("u_Color", 0.8f, 0.3f, 0.8f, 1.0f);
+        shader.SetUniformMat4f("u_MVP", proj);
+
+        Texture texture("res/textures/github.png");
+        texture.Bind();
+        shader.SetUniform1i("u_Texture", 0);
 
         vertexArray.Unbind();
         vertexBuffer.Unbind();
         indexBuffer.Unbind();
         shader.Unbind();
 		
-        GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
-        GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 
-
-        float r = 0.0f;
-        float increment = 0.05f;
+        Renderer renderer;
 
 
         while (!glfwWindowShouldClose(window))
         {
 
-            glClear(GL_COLOR_BUFFER_BIT);
 
-            shader.Bind();
-            shader.SetUniform4f("u_Color", r, 0.3f, 0.8f, 1.0f);
-
-            indexBuffer.Bind();
-            vertexArray.Bind();
-
-            GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
-
+            renderer.Clear();
+         
+            renderer.Draw(vertexArray, indexBuffer, shader);
 
             glfwSwapBuffers(window);
             glfwPollEvents();
-
-
-            if (r > 1.0f)
-                increment = -0.05f;
-            else if (r < 0.0f)
-                increment = 0.05f;
-
-            r += increment;
         }
     }
 	
