@@ -13,6 +13,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include "Gui.h"
 
 using namespace std;
 
@@ -27,7 +28,7 @@ int main(void)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
 
-
+    //540
     GLFWwindow* window = glfwCreateWindow(960, 540, "GameEngine v0.1", nullptr, nullptr);
 
 	
@@ -40,7 +41,6 @@ int main(void)
 
     glfwMakeContextCurrent(window);
 
-    glfwSwapInterval(1);
 
     if (glewInit() != GLEW_OK)
         cout << "Glew initialization error" << endl;
@@ -84,18 +84,12 @@ int main(void)
         IndexBuffer indexBuffer(indices, 6);
 
         glm::mat4 proj = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
-		glm::vec4 vp(100.0f, 100.0f, 0.0f, 1.0f);
+        glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(-100, 0, 0));
 
-        glm::vec4 result = proj * vp;
-		
-
-
-
-        Shader shader("res/shaders/basic.shader");
+        Shader shader("res/shaders/Basic.shader");
         shader.Bind();
 		
 		shader.SetUniform4f("u_Color", 0.8f, 0.3f, 0.8f, 1.0f);
-        shader.SetUniformMat4f("u_MVP", proj);
 
         Texture texture("res/textures/github.png");
         texture.Bind();
@@ -108,20 +102,54 @@ int main(void)
 		
 
         Renderer renderer;
+		
+        Gui gui;
+
+        gui.Setup(window);
 
 
+
+        glm::vec3 translation(200, 200, 0);
+
+		
         while (!glfwWindowShouldClose(window))
         {
 
 
             renderer.Clear();
+
+            gui.NewFrame();
+
+            glm::mat4 model = glm::translate(glm::mat4(1.0f), translation);
+
+            glm::mat4 mvp = proj * view * model;
+
+
+            shader.Bind();
+            shader.SetUniformMat4f("u_MVP", mvp);
          
             renderer.Draw(vertexArray, indexBuffer, shader);
 
+            {
+                static float f = 0.0f;
+                static int counter = 0;
+
+                ImGui::Begin("AMONG US ULTIMATE EDITION");                          // Create a window called "Hello, world!" and append into it.
+
+                ImGui::Text("Oui.");               // Display some text (you can use a format strings too)
+                ImGui::SliderFloat3("Translation", &translation.x, 0.0f, 960.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+
+                ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+                ImGui::End();
+            }
+
+            gui.Render();
+        	
             glfwSwapBuffers(window);
             glfwPollEvents();
         }
     }
+
 	
     glfwTerminate();
     return 0;
